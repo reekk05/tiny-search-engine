@@ -1,5 +1,6 @@
 # ninja log v7
-4	996	7982166723124855	CMakeFiles/search_engine.dir/src/main.cpp.obj	87558654bdc66a
-1025	1242	7982166733316618	search_engine.exe	7f38da431a5e3883
-43	1023	7982169754616672	CMakeFiles/search_engine.dir/src/main.cpp.obj	87558654bdc66a
-1024	1230	7982169764445621	search_engine.exe	7f38da431a5e3883
+29	1404	7982706916432744	CMakeFiles/search_engine.dir/src/main.cpp.obj	87558654bdc66a
+1431	1620	7982706930481685	search_engine.exe	7f38da431a5e3883
+31	48	7982706915753957	clean	7b037816d5af7aea
+23	1406	7982710899158040	CMakeFiles/search_engine.dir/src/main.cpp.obj	87558654bdc66a
+1407	1599	7982710913121112	search_engine.exe	7f38da431a5e3883

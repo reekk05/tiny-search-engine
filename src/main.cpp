@@ -2,12 +2,24 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <filesystem>
 #include <algorithm>
 #include <cctype>
 
 namespace fs = std::filesystem;
+
+
+// storing every pos of a word in one doc
+
+struct Posting {
+    std::string docName;
+    std::vector<int> positions;
+};
+
+//full index - word - list of postings (one per doc)
+using InvertedIndex = std::map<std::string, std::vector<Posting>>;
 
 //read the file
 std::string readFile(const fs::path& filePath) {
@@ -37,30 +49,58 @@ std::vector<std::string> tokenize(const std::string& text) {
 
     return tokens;
 }
+
+void buildIndex(InvertedIndex& index, const std::string& docName, const std::vector<std::string>&tokens) {
+    for (int i=0; i<tokens.size(); i++){
+        const std::string& word = tokens[i];
+
+        //to see if the doc already have a posting for this word
+        auto& postings = index[word];
+        auto it = std::find_if(postings.begin(), postings.end(), [&](const Posting& p) {
+            return p.docName==docName;
+        });
+        if(it==postings.end()) {
+            postings.push_back({docName, {i}}); // (first time we seeing word)
+        } else {
+            it->positions.push_back(i); //word already seen, just asigning pos here
+        }
+    }
+}
+
+void printIndex(const InvertedIndex& index) {
+    for (const auto& [word, postings]: index){
+        std::cout <<word<<":\n";
+        for(const auto& posting:postings) {
+            std::cout << " " << posting.docName << " -> positions: ";
+            for (int pos : posting.positions) {
+                std::cout << pos << " ";
+            }
+            std::cout << "\n";
+        }
+    }
+}
 int main() {
     fs::path docsPath = "../docs";
-
-    std::cout << "Looking for docs at: " << fs::absolute(docsPath) << std::endl;
-    std::cout<< "Exists: " << fs::exists(docsPath) <<std::endl;
 
     if(!fs::exists(docsPath)) {
         std::cerr << "docs/ folder not found" << std::endl;
         return 1;
     }
 
+    InvertedIndex index;
+
     for(const auto& entry : fs::directory_iterator(docsPath)) {
         if(entry.path().extension() != ".txt") continue;
-
+        std::string docName=entry.path().filename().string();
         std::string content = readFile(entry.path());
         std::vector<std::string> tokens = tokenize(content);
 
-        std::cout << "File:" << entry.path().filename() << std::endl;
-        std::cout << "Token count:" << tokens.size() << std::endl;
-        std::cout << "first 5 tokens: ";
-        for(int i=1; i < 5 && i<tokens.size(); i++) {
-            std::cout<<tokens[i] << " ";
+        buildIndex(index, docName, tokens);
+        std::cout<<"Indexed: " << docName << " (" << tokens.size()  << "tokens)\n";
+
         }
-        std::cout << "\n\n";
-    }
+        std::cout << "\n---INVERTED INDEX---\n\n";
+        printIndex(index);
+
     return 0;
 }
