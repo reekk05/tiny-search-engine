@@ -78,7 +78,7 @@ double computeTF(int termCount, int docSize) {
 //idf = log(total doc/ docs that contain the word)
 //+1 on denominator to avoid division by 0
 double computeIDF(int totalDocs, int docsWithTerm) {
-    return std::log((double)totalDocs / (docsWithTerm+1));
+    return std::log((double)(totalDocs+1) / (docsWithTerm+1))+1;
 }
 
 struct SearchResult {
